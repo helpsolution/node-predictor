@@ -26,7 +26,7 @@ class Record:
 
 
 def generateNodeMetrics(active, date_rng, cpu_value, mem_value, cont_t1_value, cont_t2_value, cont_t3_value,
-                        avg_resp_time):
+                        avg_resp_time, destroy_index):
     cpu_value = cpu_value
     mem_value = mem_value
     cont_t1_value = cont_t1_value
@@ -39,7 +39,17 @@ def generateNodeMetrics(active, date_rng, cpu_value, mem_value, cont_t1_value, c
     i = 0
     y = 0
     z = 0
+
     while i < len(date_rng):
+        if i == destroy_index:
+            active = False
+            cpu_value = 0
+            mem_value = 0
+            cont_t1_value = 0
+            cont_t2_value = 0
+            cont_t3_value = 0
+            avg_resp_time = 0
+
         record.cpu.append(cpu_value)
         record.mem.append(mem_value)
         record.cont_type_1.append(cont_t1_value)
@@ -69,8 +79,8 @@ def generateNodeMetrics(active, date_rng, cpu_value, mem_value, cont_t1_value, c
                     avg_resp_time = avg_resp_time + avg_resp_time_value_step
                 else:
                     cpu_value = cpu_value - cpu_value_step
-                    if cpu_value < 20:
-                        cpu_value = 20
+                    if cpu_value < 5:
+                        cpu_value = 5
                     mem_value = mem_value - mem_value_step
                     if mem_value < 10:
                         mem_value = 10
@@ -112,10 +122,10 @@ date_rng = pd.date_range(start='10/10/2018', end='12/16/2018', freq='60s')
 dataframe = pd.DataFrame(date_rng, columns=['timestamp'])
 dataframe = dataframe.set_index('timestamp')
 
-metrics_node1 = generateNodeMetrics(True, date_rng, 70, 50, 20, 15, 5, 1100)
-metrics_node2 = generateNodeMetrics(True, date_rng, 50, 40, 3, 0, 5, 1200)
-metrics_node3 = generateNodeMetrics(True, date_rng, 80, 60, 15, 19, 12, 1500)
-metrics_node4 = generateNodeMetrics(False, date_rng, 0, 0, 0, 0, 0, 0)
+metrics_node1 = generateNodeMetrics(True, date_rng, 70, 50, 20, 15, 5, 1100, -1)
+metrics_node2 = generateNodeMetrics(True, date_rng, 50, 40, 3, 0, 5, 1200, 50000)
+metrics_node3 = generateNodeMetrics(True, date_rng, 80, 60, 15, 19, 12, 1500, -1)
+metrics_node4 = generateNodeMetrics(False, date_rng, 0, 0, 0, 0, 0, 0, -1)
 
 print len(metrics_node1.cpu)
 print len(date_rng)
